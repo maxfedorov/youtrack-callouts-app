@@ -1,7 +1,7 @@
 {
   "name": "callouts",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "enhancedDX": "true",
   "scripts": {
@@ -14,7 +14,7 @@
     "lint": "eslint --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint --fix",
     "test": "tsx tests/callouts.test.ts",
-    "pack": "rm -rf callouts.zip && npx --yes bestzip callouts.zip dist/*",
+    "pack": "rm -f app.zip && cd dist && npx --yes bestzip ../app.zip *",
     "upload": "youtrack-app upload dist",
     "upload-local": "set -a && source .env && set +a && youtrack-app upload dist --host $YOUTRACK_HOST --token $YOUTRACK_TOKEN",
     "update": "npm run build && npm run upload-local",

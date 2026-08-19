@@ -113,7 +113,9 @@ a header instead of blending into the text; use the text mode until it arrives.
 
 1. `npm install`
 2. `npm run build`
-3. Archive "dist" folder into a single ZIP file
+3. Archive the *contents* of the `dist` folder into a single ZIP file, so that `manifest.json` sits
+   at the root of the archive rather than inside a `dist/` directory. `npm run pack` does this and
+   writes `app.zip`.
 4. Go to `/admin/apps` and import app from ZIP archive
 5. Select desired projects on projects tab in the app sidebar
 

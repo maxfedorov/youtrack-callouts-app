@@ -1,7 +1,8 @@
 {
   "name": "callouts",
   "title": "Callouts",
-  "description": "Make important text stand out in issue descriptions and knowledge base articles with Note, Tip, Important, Warning and Caution panels. Write them as GitHub-style alerts \u2014 \"> [!WARNING]\" followed by quoted lines \u2014 and they are turned into panels when the text is saved, or insert one from the editor toolbar instead. Types, titles, colours and icons are configurable per project.",
+  "description": "Make important text stand out in issue descriptions and knowledge base articles with Note, Tip, Important, Warning and Caution panels. Write them as GitHub-style alerts — \"> [!WARNING]\" followed by quoted lines — and they are turned into panels when the text is saved, or insert one from the editor toolbar instead. Types, titles, colours and icons are configurable per project.",
+  "url": "https://github.com/maxfedorov/youtrack-callouts-app",
   "version": "1.0.0",
   "$schema": "https://json.schemastore.org/youtrack-app.json",
   "vendor": {
