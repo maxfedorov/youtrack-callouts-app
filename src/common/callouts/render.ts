@@ -74,7 +74,13 @@ export function renderCalloutHtml(type: CalloutType, bodyMarkdown: string, sourc
     'display:flex',
     `border-left:3px solid ${accent}`,
     ...(isTransparent(background) ? [] : [`background:${background}`]),
-    'padding:10px 14px',
+    // Less padding on the left than on the right, because the left side already has the icon
+    // gutter. 8px is not arbitrary: it matches the icon's margin-right, which is what makes the
+    // glyph sit optically centred in its gutter. The column centres the glyph, so whatever slack a
+    // narrow symbol leaves is split evenly — with equal outer values the two gaps come out equal
+    // for every icon. At 14px the space before the icon measured 22px against 13px after it, and
+    // the icon read as floating rather than as belonging to the bar.
+    'padding:10px 14px 10px 8px',
     `border-radius:${RADIUS}`,
     'margin:8px 0',
   ].join(';');
