@@ -9,7 +9,15 @@
  * exactly one line, with nothing of the original leaking outside the panel's attributes.
  */
 
-import {MAX_TITLE, findTypeProblem, indexEnabled, parseRegistry, type CalloutType} from '../src/common/callouts/types';
+import {
+  MAX_TITLE,
+  TRANSPARENT,
+  findTypeProblem,
+  indexEnabled,
+  isTransparent,
+  parseRegistry,
+  type CalloutType,
+} from '../src/common/callouts/types';
 import {renderCallouts, revertCallouts} from '../src/common/callouts/convert';
 import {CALLOUT_ATTR, renderCalloutHtml} from '../src/common/callouts/render';
 
@@ -389,6 +397,38 @@ group('the write path rejects instead of quietly cleaning', () => {
   check('a numeric entity icon is accepted on write', findTypeProblem([
     {key: 'NOTE', title: 'Note', accent: '#111111', background: '#eeeeee', icon: '&#9888;', enabled: true},
   ]) === null);
+});
+
+group('a transparent background is an omitted declaration', () => {
+  const opaque: CalloutType =
+    {key: 'NOTE', title: 'Note', accent: '#3369d6', background: '#eef4ff', icon: 'i', enabled: true};
+  const clear: CalloutType = {...opaque, background: TRANSPARENT};
+
+  check('an opaque type still paints a fill', renderCalloutHtml(opaque, 'body').includes('background:#eef4ff'));
+  check('a transparent type paints none', !renderCalloutHtml(clear, 'body').includes('background'),
+    renderCalloutHtml(clear, 'body').slice(0, SNIPPET));
+  check('the accent bar survives, so the panel is still identifiable',
+    renderCalloutHtml(clear, 'body').includes('border-left:3px solid #3369d6'));
+  check('nothing else about the panel changes',
+    renderCalloutHtml(opaque, 'body').replace('background:#eef4ff;', '') === renderCalloutHtml(clear, 'body'));
+
+  for (const spelling of ['transparent', 'Transparent', '  TRANSPARENT  ']) {
+    check(`recognised: ${JSON.stringify(spelling)}`,
+      isTransparent(spelling) && !renderCalloutHtml({...opaque, background: spelling}, 'b').includes('background'));
+  }
+  check('a colour named like it is not mistaken for it', !isTransparent('transparentblue'));
+
+  check('accepted by the write path', findTypeProblem([{...clear}]) === null);
+  check('stored and read back verbatim',
+    parseRegistry(JSON.stringify({types: [clear]})).types[0].background === TRANSPARENT);
+
+  const clearIndex = indexEnabled([clear]);
+  const converted = renderCallouts('> [!NOTE]\n> Body text.', clearIndex);
+  check('conversion emits a transparent panel',
+    converted.count === 1 && !converted.text.includes('background') && converted.text.split('\n').length === 1,
+    converted.text.slice(0, SNIPPET));
+  check('and it still reverts exactly',
+    revertCallouts(converted.text).text === '> [!NOTE]\n> Body text.');
 });
 
 group('panels from the superseded comment format', () => {

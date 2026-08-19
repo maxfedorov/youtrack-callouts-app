@@ -21,7 +21,15 @@ import Text from '@jetbrains/ring-ui-built/components/text/text';
 import Toggle from '@jetbrains/ring-ui-built/components/toggle/toggle';
 import Heading from '@jetbrains/ring-ui-built/components/heading/heading';
 import {createApi} from '@/api';
-import {BUILTIN_TYPES, MAX_TITLE, safeIcon, safeTitle, type CalloutType} from '@/common/callouts/types';
+import {
+  BUILTIN_TYPES,
+  isTransparent,
+  MAX_TITLE,
+  safeIcon,
+  safeTitle,
+  TRANSPARENT,
+  type CalloutType,
+} from '@/common/callouts/types';
 import {renderCalloutHtml} from '@/common/callouts/render';
 
 const host = await YTApp.register();
@@ -30,6 +38,17 @@ const api = createApi(host);
 const PREVIEW_BODY = 'Body text with **bold** and a [link](https://example.com).';
 const KEY_PATTERN = /^[A-Z]{1,24}$/;
 const MAX_KEY = 24;
+
+const NEW_TYPE_ACCENT = 'var(--ring-main-color, #3369d6)';
+const NEW_TYPE_BACKGROUND = 'rgba(51, 105, 214, 0.10)';
+
+/**
+ * The fill the transparent checkbox puts back when it is unticked and this session never saw a
+ * colour for the row — a type that was saved as transparent and then reopened.
+ */
+function opaqueDefault(key: string): string {
+  return BUILTIN_TYPES.find((type) => type.key === key)?.background ?? NEW_TYPE_BACKGROUND;
+}
 
 /** Room for a numeric entity such as &#x1F512; while typing; it collapses to one symbol on blur. */
 const ICON_INPUT_MAX = 12;
@@ -66,49 +85,79 @@ interface RowProps {
   onRemove: () => void;
 }
 
-const TypeRowComponent: React.FunctionComponent<RowProps> = ({type, isBuiltin, onChange, onRemove}) => (
-  <div className="type-row">
-    <div className="type-head">
-      <Checkbox
-        checked={type.enabled}
-        label={type.key || 'New type'}
-        onChange={(event) => onChange({enabled: event.target.checked})}
-      />
-      <Button danger text onClick={onRemove}>{'Remove'}</Button>
+const TypeRowComponent: React.FunctionComponent<RowProps> = ({type, isBuiltin, onChange, onRemove}) => {
+  // Whether the row is transparent is derived from the background rather than stored beside it, so
+  // typing a colour over the word `transparent` unticks the box on its own. Only the colour to
+  // restore has to be remembered.
+  const transparent = isTransparent(type.background);
+  const [lastColour, setLastColour] = useState(() =>
+    transparent ? opaqueDefault(type.key) : type.background,
+  );
+
+  const toggleTransparent = (checked: boolean): void => {
+    if (checked) {
+      setLastColour(type.background);
+    }
+    onChange({background: checked ? TRANSPARENT : lastColour});
+  };
+
+  return (
+    <div className="type-row">
+      <div className="type-head">
+        <Checkbox
+          checked={type.enabled}
+          label={type.key || 'New type'}
+          onChange={(event) => onChange({enabled: event.target.checked})}
+        />
+        <Button danger text onClick={onRemove}>{'Remove'}</Button>
+      </div>
+      <div className="type-fields">
+        <Input
+          label="Syntax key"
+          value={type.key}
+          disabled={isBuiltin}
+          maxLength={MAX_KEY}
+          error={KEY_PATTERN.test(type.key) ? undefined : 'Letters only'}
+          onChange={(event) => onChange({key: asKey(event.target.value)})}
+        />
+        <Input
+          label="Title"
+          value={type.title}
+          maxLength={MAX_TITLE}
+          onChange={(e) => onChange({title: asTitle(e.target.value)})}
+          onBlur={() => onChange({title: safeTitle(type.title, type.key)})}
+        />
+        <Input label="Accent colour" value={type.accent} onChange={(e) => onChange({accent: e.target.value})}/>
+        {/* The switch shares the background field's grid cell instead of taking one of its own,
+            which would push the icon onto the next column and break the alignment the grid is for. */}
+        <div className="field-with-toggle">
+          <Input
+            label="Background"
+            value={type.background}
+            onChange={(e) => onChange({background: e.target.value})}
+          />
+          <Checkbox
+            checked={transparent}
+            label="Transparent"
+            onChange={(event) => toggleTransparent(event.target.checked)}
+          />
+        </div>
+        <Input
+          label="Icon"
+          value={type.icon}
+          maxLength={ICON_INPUT_MAX}
+          placeholder="ℹ"
+          title="A symbol, or its code such as &#9888;"
+          onChange={(e) => onChange({icon: e.target.value})}
+          onBlur={() => onChange({icon: safeIcon(type.icon, 'ℹ')})}
+        />
+      </div>
+      <div className="type-preview">
+        <div dangerouslySetInnerHTML={{__html: renderCalloutHtml(type, PREVIEW_BODY)}}/>
+      </div>
     </div>
-    <div className="type-fields">
-      <Input
-        label="Syntax key"
-        value={type.key}
-        disabled={isBuiltin}
-        maxLength={MAX_KEY}
-        error={KEY_PATTERN.test(type.key) ? undefined : 'Letters only'}
-        onChange={(event) => onChange({key: asKey(event.target.value)})}
-      />
-      <Input
-        label="Title"
-        value={type.title}
-        maxLength={MAX_TITLE}
-        onChange={(e) => onChange({title: asTitle(e.target.value)})}
-        onBlur={() => onChange({title: safeTitle(type.title, type.key)})}
-      />
-      <Input label="Accent colour" value={type.accent} onChange={(e) => onChange({accent: e.target.value})}/>
-      <Input label="Background" value={type.background} onChange={(e) => onChange({background: e.target.value})}/>
-      <Input
-        label="Icon"
-        value={type.icon}
-        maxLength={ICON_INPUT_MAX}
-        placeholder="ℹ"
-        title="A symbol, or its code such as &#9888;"
-        onChange={(e) => onChange({icon: e.target.value})}
-        onBlur={() => onChange({icon: safeIcon(type.icon, 'ℹ')})}
-      />
-    </div>
-    <div className="type-preview">
-      <div dangerouslySetInnerHTML={{__html: renderCalloutHtml(type, PREVIEW_BODY)}}/>
-    </div>
-  </div>
-);
+  );
+};
 
 const TypeRow = memo(TypeRowComponent);
 
@@ -155,8 +204,8 @@ const AppComponent: React.FunctionComponent = () => {
         type: {
           key: '',
           title: '',
-          accent: 'var(--ring-main-color, #3369d6)',
-          background: 'rgba(51, 105, 214, 0.10)',
+          accent: NEW_TYPE_ACCENT,
+          background: NEW_TYPE_BACKGROUND,
           icon: 'ℹ',
           enabled: true,
         },
@@ -236,6 +285,9 @@ const AppComponent: React.FunctionComponent = () => {
       )}
       <Text info className="footer-note">
         {'Titles take letters, digits, spaces and hyphens. An icon is one symbol — paste it, or type its code such as \u0026#9888; and it converts when you leave the field.'}
+      </Text>
+      <Text info className="footer-note">
+        {'Transparent drops the fill and keeps the coloured bar on the left, so the panel sits directly on the page background.'}
       </Text>
       {rows.length === 0 && (
         <Text info className="footer-note">

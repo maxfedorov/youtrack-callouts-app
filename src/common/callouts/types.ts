@@ -96,6 +96,20 @@ const CSS_COLOUR = new RegExp(
   `^(?:${COLOUR_LITERAL}|var\\(\\s*--[a-zA-Z0-9-]{1,60}\\s*(?:,\\s*(?:${COLOUR_LITERAL})\\s*)?\\))$`,
 );
 
+/**
+ * The background value that means "no fill".
+ *
+ * It is an ordinary CSS keyword, so it needs no storage of its own: it passes the colour allow-list
+ * like any other literal and travels through the registry, a widget's saved configuration and the
+ * renderer unchanged. Adding a separate boolean would have meant two fields that can disagree —
+ * this way "is it transparent" is always answerable from the background alone.
+ */
+export const TRANSPARENT = 'transparent';
+
+export function isTransparent(value: unknown): boolean {
+  return typeof value === 'string' && value.trim().toLowerCase() === TRANSPARENT;
+}
+
 export function safeKey(value: unknown, fallback: string): string {
   const key = typeof value === 'string' ? value.trim().toUpperCase() : '';
   return KEY_PATTERN.test(key) ? key : fallback;

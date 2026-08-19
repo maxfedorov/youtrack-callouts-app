@@ -62,11 +62,17 @@ HTML by hand, that edit is lost — the carried source is the source of truth.
 - switch automatic conversion on or off for the project;
 - enable or disable individual types;
 - rename a type, or change its accent colour, background and icon;
+- tick **Transparent** to drop the fill, leaving the coloured bar on the left and the panel sitting
+  directly on the page background;
 - add custom types with their own syntax keyword, for example `> [!SECURITY]`.
 
 Field rules are deliberately narrow: a **syntax key** is letters only, a **title** takes letters
 (any alphabet), digits, spaces and hyphens, and an **icon** is a single symbol — paste `⚠` or type
 its code `&#9888;` and it is converted for you. Images and links are not accepted as icons.
+
+Colours take a hex value, `rgb()` / `rgba()`, `hsl()` / `hsla()`, a CSS colour name, or a Ring UI
+variable with a fallback such as `var(--ring-warning-color, #d98a00)`. The **Transparent** checkbox
+is the background field spelled `transparent`, so typing a colour over it clears the checkbox again.
 
 Each row shows a live preview rendered with the same code that produces the real panels. Changing
 these settings requires the **Update project** permission.

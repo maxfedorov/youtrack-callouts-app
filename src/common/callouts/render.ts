@@ -13,7 +13,7 @@
  */
 
 import type {CalloutType} from './types';
-import {BUILTIN_TYPES, safeColour, safeIcon, safeKey, safeTitle} from './types';
+import {BUILTIN_TYPES, isTransparent, safeColour, safeIcon, safeKey, safeTitle} from './types';
 import {escapeHtml, renderBody} from './inline-md';
 
 const RADIUS = 'var(--ring-border-radius, 4px)';
@@ -66,10 +66,14 @@ export function renderCalloutHtml(type: CalloutType, bodyMarkdown: string, sourc
   // `overflow-wrap` are all dropped, while `display`, `width`, `margin`, `padding`, `text-align`,
   // `word-break` and the colour properties survive. So the spacing is built from a fixed-width icon
   // column plus `margin-right` instead of flex `gap`, and long words are broken with `word-break`.
+  // A transparent background is written as no declaration at all rather than
+  // `background:transparent`. The two are equivalent — `background` is not inherited and its initial
+  // value is already transparent — but omitting it keeps the result independent of how each of the
+  // two markdown renderers treats a bare keyword in a colour position.
   const panel = [
     'display:flex',
     `border-left:3px solid ${accent}`,
-    `background:${background}`,
+    ...(isTransparent(background) ? [] : [`background:${background}`]),
     'padding:10px 14px',
     `border-radius:${RADIUS}`,
     'margin:8px 0',
