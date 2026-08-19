@@ -15,6 +15,7 @@ import {
   findTypeProblem,
   indexEnabled,
   isTransparent,
+  optionalTitle,
   parseRegistry,
   type CalloutType,
 } from '../src/common/callouts/types';
@@ -168,9 +169,11 @@ group('long values cannot break the layout', () => {
   const parsed = parseRegistry(stored).types[0];
   check('title trimmed to the limit', parsed.title.length === MAX_TITLE, String(parsed.title.length));
   check('trimmed title keeps the start of what was typed', parsed.title.startsWith('AAA'));
+  // A blank title is not a mistake to repair: it is how a heading-less type is written. Only an
+  // absent field falls back — see 'a type with no title renders a single row'.
   check(
-    'an empty title falls back rather than rendering blank',
-    parseRegistry(JSON.stringify({types: [{key: 'NOTE', title: '   ', enabled: true}]})).types[0].title === 'Note',
+    'a whitespace-only title means no heading',
+    parseRegistry(JSON.stringify({types: [{key: 'NOTE', title: '   ', enabled: true}]})).types[0].title === '',
   );
 
   const rendered = renderCallouts(
@@ -429,6 +432,46 @@ group('a transparent background is an omitted declaration', () => {
     converted.text.slice(0, SNIPPET));
   check('and it still reverts exactly',
     revertCallouts(converted.text).text === '> [!NOTE]\n> Body text.');
+});
+
+group('a type with no title renders a single row', () => {
+  const titled: CalloutType =
+    {key: 'NOTE', title: 'Note', accent: '#3369d6', background: '#eef4ff', icon: 'i', enabled: true};
+  const bare: CalloutType = {...titled, title: ''};
+
+  const html = renderCalloutHtml(bare, 'Short remark.');
+  check('no heading element is emitted', !html.includes('font-weight:600'), html.slice(0, SNIPPET));
+  check('an empty one is not emitted either — it would still take a line box',
+    !html.includes('><\/div>') || !/font-weight/.test(html));
+  check('the body sits directly in the text column',
+    html.includes('word-break:break-word">Short remark.</div>'), html.slice(0, SNIPPET));
+  check('the icon and the accent bar are untouched',
+    html.includes('border-left:3px solid #3369d6') && html.includes('>i</div>'));
+  check('exactly one element is dropped versus the titled panel',
+    (html.match(/<div/g) ?? []).length === (renderCalloutHtml(titled, 'Short remark.').match(/<div/g) ?? []).length - 1);
+
+  check('a list body still works', renderCalloutHtml(bare, '- one\n- two').includes('<li>'));
+
+  check('empty means empty, it is not replaced by the built-in name',
+    parseRegistry(JSON.stringify({types: [bare]})).types[0].title === '');
+  check('a missing title still falls back to the built-in name',
+    parseRegistry(JSON.stringify({types: [{key: 'NOTE', accent: '#111111', background: '#eee'}]})).types[0].title === 'Note');
+  check('a missing title on a custom key falls back to the key',
+    parseRegistry(JSON.stringify({types: [{key: 'SECURITY', accent: '#111111', background: '#eee'}]})).types[0].title === 'SECURITY');
+  check('optionalTitle keeps a supplied empty string', optionalTitle('', 'Note') === '');
+  check('optionalTitle falls back for a non-string', optionalTitle(undefined, 'Note') === 'Note');
+  check('a title of pure punctuation cleans down to no heading', optionalTitle('!!!', 'Note') === '');
+
+  check('accepted by the write path', findTypeProblem([bare]) === null);
+  check('a non-string title is still rejected',
+    findTypeProblem([{...bare, title: 42}]) !== null);
+
+  const converted = renderCallouts('> [!NOTE]\n> Short remark.', indexEnabled([bare]));
+  check('conversion emits one line with no heading',
+    converted.count === 1 && converted.text.split('\n').length === 1 && !converted.text.includes('font-weight:600'),
+    converted.text.slice(0, SNIPPET));
+  check('and it still reverts exactly',
+    revertCallouts(converted.text).text === '> [!NOTE]\n> Short remark.');
 });
 
 group('panels from the superseded comment format', () => {

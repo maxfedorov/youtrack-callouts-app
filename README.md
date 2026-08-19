@@ -64,6 +64,8 @@ HTML by hand, that edit is lost — the carried source is the source of truth.
 - rename a type, or change its accent colour, background and icon;
 - tick **Transparent** to drop the fill, leaving the coloured bar on the left and the panel sitting
   directly on the page background;
+- clear the **Title** to drop the heading, so the text sits on the same row as the icon — right for a
+  one-line remark that a word like "Note" above it would only pad out;
 - add custom types with their own syntax keyword, for example `> [!SECURITY]`.
 
 Field rules are deliberately narrow: a **syntax key** is letters only, a **title** takes letters
@@ -73,6 +75,10 @@ its code `&#9888;` and it is converted for you. Images and links are not accepte
 Colours take a hex value, `rgb()` / `rgba()`, `hsl()` / `hsla()`, a CSS colour name, or a Ring UI
 variable with a fallback such as `var(--ring-warning-color, #d98a00)`. The **Transparent** checkbox
 is the background field spelled `transparent`, so typing a colour over it clears the checkbox again.
+
+A title is optional, not required: an empty field means "no heading", and only a type saved without
+the field at all falls back to its built-in name. Keep both looks by defining two types — say `NOTE`
+with a heading and `INFO` without one.
 
 Each row shows a live preview rendered with the same code that produces the real panels. Changing
 these settings requires the **Update project** permission.

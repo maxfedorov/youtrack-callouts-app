@@ -13,7 +13,10 @@
 export interface CalloutType {
   /** Token used in the `> [!KEY]` syntax. Uppercase A-Z only, unique within a project. */
   key: string;
-  /** Heading rendered inside the panel. */
+  /**
+   * Heading rendered inside the panel. Empty means no heading: the panel is then a single row of
+   * icon and text, which suits a short remark that a word like "Note" above it only pads out.
+   */
   title: string;
   /** Border and heading colour. Any CSS colour value. */
   accent: string;
@@ -173,6 +176,18 @@ export function safeTitle(value: unknown, fallback: string): string {
 }
 
 /**
+ * A title is optional, so "empty" and "missing" have to mean different things.
+ *
+ * A string the caller actually supplied is taken at face value, even when cleaning leaves nothing —
+ * that is a deliberate "no heading". Only a value that is not a string at all is missing, and that
+ * is what the fallback is for. Without the distinction there would be no way to express a
+ * heading-less type: clearing the field would silently restore the built-in name.
+ */
+export function optionalTitle(value: unknown, fallback: string): string {
+  return typeof value === 'string' ? safeTitle(value, '') : fallback;
+}
+
+/**
  * Strict validation for the write path.
  *
  * Reading and rendering repair whatever they are given, because a panel cannot show an error and a
@@ -212,8 +227,10 @@ function findFieldProblem(raw: unknown, index: number, seen: Set<string>): strin
     return `${at}: duplicate key ${key}`;
   }
   seen.add(key);
+  // An empty title is valid — it is how a heading-less type is expressed — but the field itself has
+  // to be present, and whatever is in it has to already be clean.
   if (typeof input.title !== 'string' || safeTitle(input.title, '') !== input.title.trim()) {
-    return `${at}: title may contain only letters, digits, spaces and hyphens (max ${MAX_TITLE})`;
+    return `${at}: title may contain only letters, digits, spaces and hyphens (max ${MAX_TITLE}), or be empty for no heading`;
   }
   if (safeColour(input.accent, '') === '') {
     return `${at}: accent must be a colour, e.g. #3369d6, rgba(...) or var(--ring-main-color, #3369d6)`;
@@ -249,7 +266,7 @@ function sanitizeType(raw: unknown): CalloutType | null {
   const builtin = BUILTIN_TYPES.find((type) => type.key === key) ?? BUILTIN_TYPES[0];
   return {
     key,
-    title: safeTitle(input.title, builtin.key === key ? builtin.title : key),
+    title: optionalTitle(input.title, builtin.key === key ? builtin.title : key),
     accent: safeColour(input.accent, builtin.accent),
     background: safeColour(input.background, builtin.background),
     icon: safeIcon(input.icon, builtin.icon),

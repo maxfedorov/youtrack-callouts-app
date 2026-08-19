@@ -13,7 +13,7 @@
  */
 
 import type {CalloutType} from './types';
-import {BUILTIN_TYPES, isTransparent, safeColour, safeIcon, safeKey, safeTitle} from './types';
+import {BUILTIN_TYPES, isTransparent, optionalTitle, safeColour, safeIcon, safeKey} from './types';
 import {escapeHtml, renderBody} from './inline-md';
 
 const RADIUS = 'var(--ring-border-radius, 4px)';
@@ -89,8 +89,14 @@ export function renderCalloutHtml(type: CalloutType, bodyMarkdown: string, sourc
   // narrow symbol like the info sign otherwise produce visibly different gaps.
   const iconStyle = `width:20px;margin-right:8px;text-align:center;color:${accent}`;
   const icon = `<div style="${iconStyle}">${safeIcon(type.icon, fallback.icon)}</div>`;
-  const title =
-    `<div style="font-weight:600;color:${accent};word-break:break-word">${escapeHtml(safeTitle(type.title, fallback.title))}</div>`;
+
+  // A type with no title renders as a single row of icon and text. The heading element is left out
+  // rather than emitted empty: an empty block would still take a line box, which is the whole thing
+  // the author was trying to get rid of.
+  const heading = optionalTitle(type.title, fallback.title);
+  const title = heading === ''
+    ? ''
+    : `<div style="font-weight:600;color:${accent};word-break:break-word">${escapeHtml(heading)}</div>`;
   const body = renderBody(bodyMarkdown);
   const bookkeeping =
     source === undefined ? '' : ` ${CALLOUT_ATTR}="${key}" ${SOURCE_ATTR}="${encodeSource(source)}"`;

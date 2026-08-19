@@ -124,8 +124,10 @@ const TypeRowComponent: React.FunctionComponent<RowProps> = ({type, isBuiltin, o
           label="Title"
           value={type.title}
           maxLength={MAX_TITLE}
+          placeholder="No heading"
+          title="Leave empty to put the text next to the icon with no heading above it"
           onChange={(e) => onChange({title: asTitle(e.target.value)})}
-          onBlur={() => onChange({title: safeTitle(type.title, type.key)})}
+          onBlur={() => onChange({title: safeTitle(type.title, '')})}
         />
         <Input label="Accent colour" value={type.accent} onChange={(e) => onChange({accent: e.target.value})}/>
         {/* The switch shares the background field's grid cell instead of taking one of its own,
@@ -241,7 +243,7 @@ const AppComponent: React.FunctionComponent = () => {
     return <Loader/>;
   }
 
-  const invalid = rows.some((row) => !KEY_PATTERN.test(row.type.key) || row.type.title.trim() === '');
+  const invalid = rows.some((row) => !KEY_PATTERN.test(row.type.key));
 
   return (
     <div className="widget">
@@ -280,14 +282,14 @@ const AppComponent: React.FunctionComponent = () => {
       </ButtonSet>
       {invalid && (
         <Text info className="footer-note">
-          {'Every type needs a syntax key of letters only and a non-empty title.'}
+          {'Every type needs a syntax key of letters only.'}
         </Text>
       )}
       <Text info className="footer-note">
         {'Titles take letters, digits, spaces and hyphens. An icon is one symbol — paste it, or type its code such as \u0026#9888; and it converts when you leave the field.'}
       </Text>
       <Text info className="footer-note">
-        {'Transparent drops the fill and keeps the coloured bar on the left, so the panel sits directly on the page background.'}
+        {'Transparent drops the fill and keeps the coloured bar on the left, so the panel sits directly on the page background. Clearing the title drops the heading, putting the text on the same row as the icon.'}
       </Text>
       {rows.length === 0 && (
         <Text info className="footer-note">

@@ -27,7 +27,7 @@ interface Props {
 }
 
 /**
- * Measured on a rendered panel: 10px padding top and bottom, and a 24px line box for the title and
+ * Measured on a rendered panel: 10px padding top and bottom, and a 24px line box for the heading and
  * for each body line. A widget cannot resize itself — `reportWidgetSize` is ignored for MARKDOWN
  * widgets — so the best the form can do is tell the author the number to drag to.
  */
@@ -35,9 +35,9 @@ const PANEL_PADDING = 20;
 const LINE_HEIGHT = 24;
 const DEFAULT_HEIGHT = PANEL_PADDING + LINE_HEIGHT * 2;
 
-function estimateHeight(body: string): number {
+function estimateHeight(body: string, hasHeading: boolean): number {
   const lines = body.split('\n').filter((line) => line.trim().length > 0).length || 1;
-  return PANEL_PADDING + LINE_HEIGHT * (1 + lines);
+  return PANEL_PADDING + LINE_HEIGHT * (lines + (hasHeading ? 1 : 0));
 }
 
 const CalloutEditorComponent: React.FunctionComponent<Props> = ({
@@ -52,7 +52,7 @@ const CalloutEditorComponent: React.FunctionComponent<Props> = ({
   const [selected, setSelected] = useState<CalloutType>(initialType);
   const [body, setBody] = useState(initialBody);
   const [saving, setSaving] = useState(false);
-  const neededHeight = estimateHeight(body);
+  const neededHeight = estimateHeight(body, selected.title !== '');
 
   useEffect(() => {
     host.enterConfigMode();
@@ -79,7 +79,7 @@ const CalloutEditorComponent: React.FunctionComponent<Props> = ({
               active={type.key === selected.key}
               onClick={() => setSelected(type)}
             >
-              {type.title}
+              {type.title || type.key}
             </Button>
           ))}
         </div>
