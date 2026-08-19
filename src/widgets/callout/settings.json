@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "accent": {
+      "type": "string"
+    },
+    "background": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "name": "callouts",
+  "title": "Callouts",
+  "description": "Make important text stand out in issue descriptions and knowledge base articles with Note, Tip, Important, Warning and Caution panels. Write them as GitHub-style alerts \u2014 \"> [!WARNING]\" followed by quoted lines \u2014 and they are turned into panels when the text is saved, or insert one from the editor toolbar instead. Types, titles, colours and icons are configurable per project.",
+  "version": "1.0.0",
+  "$schema": "https://json.schemastore.org/youtrack-app.json",
+  "vendor": {
+    "name": "Maksim Fedorov",
+    "url": "https://github.com/maxfedorov"
+  },
+  "icon": "icon.svg",
+  "widgets": [
+    {
+      "key": "callout",
+      "name": "Callout",
+      "indexPath": "callout/index.html",
+      "extensionPoint": "MARKDOWN",
+      "iconPath": "callout/widget-icon.svg",
+      "description": "Insert a highlighted note, tip, important, warning or caution panel.",
+      "borderless": true,
+      "settingsSchemaPath": "callout/settings.json",
+      "permissions": [
+        "UPDATE_ISSUE",
+        "UPDATE_ARTICLE"
+      ],
+      "defaultDimensions": {
+        "width": "100%",
+        "height": "68px"
+      }
+    },
+    {
+      "key": "callout-settings",
+      "name": "Callouts",
+      "indexPath": "callout-settings/index.html",
+      "extensionPoint": "PROJECT_SETTINGS",
+      "iconPath": "callout-settings/widget-icon.svg",
+      "description": "Configure callout types, colours and icons for this project."
+    },
+    {
+      "key": "callout-issue-actions",
+      "name": "Callouts",
+      "indexPath": "callout-issue-actions/index.html",
+      "extensionPoint": "ISSUE_OPTIONS_MENU_ITEM",
+      "iconPath": "callout-issue-actions/widget-icon.svg",
+      "description": "Render or revert callouts in this issue description.",
+      "guard": "({entity}) => !entity.draft && !entity.isEditing",
+      "permissions": [
+        "UPDATE_ISSUE"
+      ],
+      "expectedDimensions": {
+        "width": 460,
+        "height": 150
+      }
+    },
+    {
+      "key": "callout-article-actions",
+      "name": "Callouts",
+      "indexPath": "callout-article-actions/index.html",
+      "extensionPoint": "ARTICLE_OPTIONS_MENU_ITEM",
+      "iconPath": "callout-article-actions/widget-icon.svg",
+      "description": "Render or revert callouts in this article.",
+      "guard": "({entity}) => !entity.draft && !entity.isEditing",
+      "permissions": [
+        "UPDATE_ARTICLE"
+      ],
+      "expectedDimensions": {
+        "width": 460,
+        "height": 150
+      }
+    }
+  ]
+}

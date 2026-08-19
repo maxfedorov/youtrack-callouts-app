@@ -1,0 +1,21 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.widget {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--ring-unit) * 2);
+  /* The popup is sized by expectedDimensions in the manifest; fill it rather than
+     introducing a second, narrower column inside. */
+  width: 100%;
+  padding: var(--ring-unit) 0;
+}
+
+.hint {
+  display: block;
+}

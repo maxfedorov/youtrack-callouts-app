@@ -1,0 +1,74 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Match the typography of the text the widget is embedded in, not Ring's control font.
+   Measured on an issue description: 16px with a 24px line box, while `--ring-font-size` is 14px/20px.
+   Getting this wrong made the panel render smaller inside the widget than the identical panel
+   written as text, and left dead space at the bottom of the inserted block. */
+body {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  font-family: var(--ring-font-family);
+  font-size: var(--ring-font-size-larger, 16px);
+  line-height: 1.5;
+  color: var(--ring-text-color);
+}
+
+/* The configuration form is a form, so it goes back to Ring's control typography. */
+.callout-editor {
+  font-size: var(--ring-font-size);
+  line-height: var(--ring-line-height);
+}
+
+/* The widget is declared borderless: the rendered panel supplies its own frame. */
+.callout-widget {
+  overflow: hidden;
+}
+
+/* The shared renderer gives the panel `margin:8px 0`, which is right in the text flow but is pure
+   wasted height inside a widget — the host already spaces the embedded block. The margin is inline,
+   so overriding it needs !important. */
+.callout-widget > div {
+  margin: 0 !important;
+}
+
+/* Only shown while the host is in config mode, where the widget gets a full dialog. */
+.callout-editor {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--ring-unit) * 2);
+  padding: var(--ring-unit);
+}
+
+.editor-field {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--ring-unit) / 2);
+}
+
+.type-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ring-unit);
+}
+
+/* Shown while an inserted instance has no configuration yet. */
+.callout-placeholder {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px dashed var(--ring-borders-color, #b8b8b8);
+  border-radius: var(--ring-border-radius, 4px);
+  background: transparent;
+  color: var(--ring-secondary-color, #6c707e);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.callout-placeholder:hover {
+  border-color: var(--ring-main-color, #3369d6);
+  color: var(--ring-main-color, #3369d6);
+}

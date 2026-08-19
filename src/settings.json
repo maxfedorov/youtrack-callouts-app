@@ -1,0 +1,7 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Callouts Settings",
+  "description": "Callout types are configured per project under Project settings, so there is nothing to set globally.",
+  "properties": {}
+}

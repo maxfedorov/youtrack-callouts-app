@@ -1,0 +1,63 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+.widget {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--ring-unit) * 2);
+  margin: calc(var(--ring-unit) * 2) 0;
+  /* The panel preview must never push the widget wider than its iframe. */
+  max-width: 100%;
+  overflow-x: hidden;
+  /* The widget iframe sits flush against the settings pane, so the breathing room has to come
+     from inside it. */
+  padding: 0 calc(var(--ring-unit) * 3);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--ring-unit) * 2);
+}
+
+.type-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.type-row {
+  padding: calc(var(--ring-unit) * 1.5) 0;
+  border-bottom: 1px solid var(--ring-line-color);
+}
+
+.type-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ring-unit);
+  margin-bottom: var(--ring-unit);
+}
+
+/* A grid rather than wrapping flex: every row lines its inputs up on the same
+   columns regardless of how long the type's keyword is. */
+.type-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--ring-unit);
+}
+
+/* Grid items default to min-width:auto, which lets a Ring input's intrinsic width push the last
+   column past the container instead of shrinking. */
+.type-fields > * {
+  min-width: 0;
+}
+
+.type-preview {
+  margin-top: var(--ring-unit);
+  max-width: 640px;
+}
+
+.footer-note {
+  margin-top: calc(var(--ring-unit) * -1);
+}

@@ -1,0 +1,31 @@
+{
+  "entityTypeExtensions": [
+    {
+      "entityType": "Project",
+      "properties": {
+        "calloutTypes": {
+          "type": "string",
+          "description": "JSON array of callout type definitions for this project. When empty, the built-in types are used."
+        }
+      }
+    },
+    {
+      "entityType": "Issue",
+      "properties": {
+        "calloutsDisabled": {
+          "type": "string",
+          "description": "\"true\" when automatic callout rendering is switched off for this issue."
+        }
+      }
+    },
+    {
+      "entityType": "Article",
+      "properties": {
+        "calloutsDisabled": {
+          "type": "string",
+          "description": "\"true\" when automatic callout rendering is switched off for this article."
+        }
+      }
+    }
+  ]
+}
