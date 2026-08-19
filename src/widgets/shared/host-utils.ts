@@ -71,3 +71,20 @@ export type CalloutStyleSnapshot = Pick<
   CalloutType,
   'key' | 'title' | 'accent' | 'background' | 'icon'
 >;
+
+/**
+ * Repairs a style snapshot on its way back out of the host's widget storage.
+ *
+ * An empty title does not survive that round trip: the widget writes `title: ""` for a heading-less
+ * type, and what comes back has no `title` at all. The renderer reads a missing title as "not
+ * supplied" and falls back to the built-in name, so a panel the author deliberately left bare grew a
+ * "Note" heading the first time the issue was saved and the widget reloaded from storage. The
+ * colours were unaffected, which is what pointed at the title fallback rather than at the config
+ * being lost wholesale.
+ *
+ * Absence is therefore not ambiguous here the way it is in the project registry: the widget always
+ * writes every field, so a title that is missing on read is one that was empty on write.
+ */
+export function restoreSnapshot<T extends CalloutStyleSnapshot>(stored: T): T {
+  return {...stored, title: typeof stored.title === 'string' ? stored.title : ''};
+}

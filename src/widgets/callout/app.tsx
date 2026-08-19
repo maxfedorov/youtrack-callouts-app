@@ -15,7 +15,7 @@ import React, {memo, useCallback, useEffect, useState} from 'react';
 import {createApi} from '@/api';
 import {BUILTIN_TYPES, type CalloutType} from '@/common/callouts/types';
 import {renderCalloutHtml} from '@/common/callouts/render';
-import {resolveProjectId, type CalloutStyleSnapshot} from '../shared/host-utils';
+import {resolveProjectId, restoreSnapshot, type CalloutStyleSnapshot} from '../shared/host-utils';
 import {CalloutEditor} from './editor';
 
 interface CalloutConfig extends CalloutStyleSnapshot {
@@ -43,7 +43,7 @@ const AppComponent: React.FunctionComponent = () => {
     const load = async (): Promise<void> => {
       const stored = await host.readConfig<CalloutConfig>();
       if (stored?.key && typeof stored.body === 'string') {
-        setConfig(stored);
+        setConfig(restoreSnapshot(stored));
       } else {
         // An unconfigured instance has to open the form itself. `onConfigure` is not called on
         // insertion, and in the Visual editor a click on the embedded block selects it rather than

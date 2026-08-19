@@ -21,6 +21,7 @@ import {
 } from '../src/common/callouts/types';
 import {renderCallouts, revertCallouts} from '../src/common/callouts/convert';
 import {CALLOUT_ATTR, renderCalloutHtml} from '../src/common/callouts/render';
+import {restoreSnapshot} from '../src/widgets/shared/host-utils';
 
 const types = indexEnabled(parseRegistry(null).types);
 /** How much of a rendered string to show when an assertion fails. */
@@ -472,6 +473,24 @@ group('a type with no title renders a single row', () => {
     converted.text.slice(0, SNIPPET));
   check('and it still reverts exactly',
     revertCallouts(converted.text).text === '> [!NOTE]\n> Short remark.');
+});
+
+group('a widget snapshot survives the host storage round trip', () => {
+  const bare = {key: 'PLAIN', title: '', accent: '#3369d6', background: '#eef4ff', icon: 'i'};
+  // What the host hands back: the empty title is gone, everything else is intact.
+  const {title: _dropped, ...afterStorage} = bare;
+  const restored = restoreSnapshot(afterStorage as typeof bare);
+
+  check('a dropped title is read as empty, not as absent', restored.title === '');
+  check('so the panel keeps no heading',
+    !renderCalloutHtml({...restored, enabled: true}, 'text').includes('font-weight:600'),
+    renderCalloutHtml({...restored, enabled: true}, 'text').slice(0, SNIPPET));
+  check('without the repair it would grow the built-in name',
+    renderCalloutHtml({...(afterStorage as typeof bare), enabled: true}, 'text').includes('>Note</div>'));
+  check('an empty title that did survive stays empty', restoreSnapshot(bare).title === '');
+  check('a non-empty title is left alone', restoreSnapshot({...bare, title: 'Heads up'}).title === 'Heads up');
+  check('the other fields are untouched',
+    JSON.stringify({...restored, title: undefined}) === JSON.stringify({...bare, title: undefined}));
 });
 
 group('panels from the superseded comment format', () => {
