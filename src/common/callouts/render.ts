@@ -66,14 +66,21 @@ export function renderCalloutHtml(type: CalloutType, bodyMarkdown: string, sourc
   // `overflow-wrap` are all dropped, while `display`, `width`, `margin`, `padding`, `text-align`,
   // `word-break` and the colour properties survive. So the spacing is built from a fixed-width icon
   // column plus `margin-right` instead of flex `gap`, and long words are broken with `word-break`.
+  // The fill and the rounding stand or fall together.
+  //
   // A transparent background is written as no declaration at all rather than
   // `background:transparent`. The two are equivalent — `background` is not inherited and its initial
   // value is already transparent — but omitting it keeps the result independent of how each of the
   // two markdown renderers treats a bare keyword in a colour position.
+  //
+  // `border-radius` goes with it, because it is the filled shape it was rounding. With no fill the
+  // only thing left to round is the 3px accent bar, and a bar with curved ends reads as a ragged
+  // edge rather than as a deliberate corner.
+  const filled = !isTransparent(background);
   const panel = [
     'display:flex',
     `border-left:3px solid ${accent}`,
-    ...(isTransparent(background) ? [] : [`background:${background}`]),
+    ...(filled ? [`background:${background}`] : []),
     // Less padding on the left than on the right, because the left side already has the icon
     // gutter. 8px is not arbitrary: it matches the icon's margin-right, which is what makes the
     // glyph sit optically centred in its gutter. The column centres the glyph, so whatever slack a
@@ -81,7 +88,7 @@ export function renderCalloutHtml(type: CalloutType, bodyMarkdown: string, sourc
     // for every icon. At 14px the space before the icon measured 22px against 13px after it, and
     // the icon read as floating rather than as belonging to the bar.
     'padding:10px 14px 10px 8px',
-    `border-radius:${RADIUS}`,
+    ...(filled ? [`border-radius:${RADIUS}`] : []),
     'margin:8px 0',
   ].join(';');
 

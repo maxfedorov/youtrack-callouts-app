@@ -413,8 +413,18 @@ group('a transparent background is an omitted declaration', () => {
     renderCalloutHtml(clear, 'body').slice(0, SNIPPET));
   check('the accent bar survives, so the panel is still identifiable',
     renderCalloutHtml(clear, 'body').includes('border-left:3px solid #3369d6'));
+
+  // The rounding belongs to the fill: with nothing filled, the only thing left to round is the 3px
+  // bar, and curved ends on a bar read as a ragged edge.
+  check('a filled panel is rounded', renderCalloutHtml(opaque, 'body').includes('border-radius:'));
+  check('an unfilled one is not, so the bar is straight',
+    !renderCalloutHtml(clear, 'body').includes('border-radius'),
+    renderCalloutHtml(clear, 'body').slice(0, SNIPPET));
+
   check('nothing else about the panel changes',
-    renderCalloutHtml(opaque, 'body').replace('background:#eef4ff;', '') === renderCalloutHtml(clear, 'body'));
+    renderCalloutHtml(opaque, 'body')
+      .replace('background:#eef4ff;', '')
+      .replace('border-radius:var(--ring-border-radius, 4px);', '') === renderCalloutHtml(clear, 'body'));
 
   for (const spelling of ['transparent', 'Transparent', '  TRANSPARENT  ']) {
     check(`recognised: ${JSON.stringify(spelling)}`,

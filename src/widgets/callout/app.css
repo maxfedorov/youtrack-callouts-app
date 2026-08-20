@@ -27,11 +27,20 @@ body {
   overflow: hidden;
 }
 
-/* The shared renderer gives the panel `margin:8px 0`, which is right in the text flow but is pure
+/* The shared renderer gives the panel `margin:8px 0`, which is right in the text flow but is mostly
    wasted height inside a widget — the host already spaces the embedded block. The margin is inline,
-   so overriding it needs !important. */
+   so overriding it needs !important.
+
+   3px is kept top and bottom rather than going to 0. The host clips the widget with rounded corners,
+   and while the panel was rounded too the two curves sat on top of each other and nothing showed. An
+   unfilled panel has no border-radius, so its square corners run straight into the host's curve and
+   get shaved off at the ends of the accent bar. The 3px keeps the panel clear of the arc.
+
+   `.callout-widget` has `overflow: hidden`, so it is a block formatting context and this margin
+   cannot collapse out of the widget. The reserved block height allows for the 6px — see
+   `WIDGET_GUTTER` in editor.tsx and `defaultDimensions` in the manifest. */
 .callout-widget > div {
-  margin: 0 !important;
+  margin: 3px 0 !important;
 }
 
 /* Only shown while the host is in config mode, where the widget gets a full dialog. */

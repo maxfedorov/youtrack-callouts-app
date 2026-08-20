@@ -39,7 +39,7 @@ export async function resolveProjectId(host: MinimalHost): Promise<string | null
  *
  * Verified to have **no effect on a MARKDOWN widget**: its iframe is sized solely by the
  * `{width= height=}` attributes on the `![](widget:…)` placeholder, and a widget asking for 220px
- * stayed at the 68px written in the text. Kept for the menu widgets, where the popup is the host's
+ * stayed at the height written in the text. Kept for the menu widgets, where the popup is the host's
  * own container.
  */
 export function reportHeight(host: MinimalHost, element: HTMLElement | null): void {

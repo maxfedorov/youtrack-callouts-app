@@ -33,11 +33,16 @@ interface Props {
  */
 const PANEL_PADDING = 20;
 const LINE_HEIGHT = 24;
-const DEFAULT_HEIGHT = PANEL_PADDING + LINE_HEIGHT * 2;
+/**
+ * 3px above and below the panel, so the host's rounded corners clip empty space instead of the ends
+ * of the accent bar. Set in `app.css`; counted here because the reserved block has to allow for it.
+ */
+const WIDGET_GUTTER = 6;
+const DEFAULT_HEIGHT = WIDGET_GUTTER + PANEL_PADDING + LINE_HEIGHT * 2;
 
 function estimateHeight(body: string, hasHeading: boolean): number {
   const lines = body.split('\n').filter((line) => line.trim().length > 0).length || 1;
-  return PANEL_PADDING + LINE_HEIGHT * (lines + (hasHeading ? 1 : 0));
+  return WIDGET_GUTTER + PANEL_PADDING + LINE_HEIGHT * (lines + (hasHeading ? 1 : 0));
 }
 
 const CalloutEditorComponent: React.FunctionComponent<Props> = ({
