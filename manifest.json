@@ -21,8 +21,8 @@
       "borderless": true,
       "settingsSchemaPath": "callout/settings.json",
       "permissions": [
-        "UPDATE_ISSUE",
-        "UPDATE_ARTICLE"
+        "READ_ISSUE",
+        "READ_ARTICLE"
       ],
       "defaultDimensions": {
         "width": "100%",
